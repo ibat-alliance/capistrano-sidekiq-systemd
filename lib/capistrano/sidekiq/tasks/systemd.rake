@@ -7,6 +7,7 @@ namespace :load do
     set :sidekiq_user, nil
     set :sidekiq_max_mem, nil
     set :service_unit_name, "sidekiq-#{fetch(:stage)}.service"
+    set :sidekiq_custom_service_filepath, nil
     set :sidekiq_service_unit_user, :user
     set :sidekiq_log, nil
     set :sidekiq_error_log, nil
@@ -104,7 +105,11 @@ namespace :sidekiq do
   end
 
   def create_systemd_template(role)
-    template = File.read(File.expand_path('../../../../generators/capistrano/sidekiq/systemd/templates/sidekiq.service.capistrano.erb', __FILE__))
+    filepath =
+      fetch(:sidekiq_custom_service_filepath) ||
+      File.expand_path('../../../../generators/capistrano/sidekiq/systemd/templates/sidekiq.service.capistrano.erb', __FILE__)
+
+    template = File.read(filepath)
     home_dir = capture :pwd
     systemd_path = fetch(:service_unit_path, fetch_systemd_unit_path(home_dir))
     sidekiq_cmd = SSHKit.config.command_map[:sidekiq].gsub('~', home_dir)
