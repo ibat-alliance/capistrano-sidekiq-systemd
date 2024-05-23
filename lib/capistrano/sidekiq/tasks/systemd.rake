@@ -46,7 +46,7 @@ namespace :sidekiq do
     on roles fetch(:sidekiq_roles) do |role|
       switch_user(role) do
         sidekiq_options_per_process.each_index do |index|
-          systemctl(command: 'reload', service_unit_name: service_unit_name(index), raise_on_non_zero_exit: false)
+          systemctl(command: 'kill -s TSTP', service_unit_name: service_unit_name(index), raise_on_non_zero_exit: false)
         end
       end
     end
